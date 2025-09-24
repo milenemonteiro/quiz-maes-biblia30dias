@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz: Mães da Bíblia (30)</title>
+<style>
+  body { font-family: Georgia, 'Times New Roman', serif; background:#f3f0f7; margin:0; padding:24px; display:flex; justify-content:center; color:#333;}
+  .container { width:100%; max-width:900px; }
+  header { text-align:center; margin-bottom:12px; }
+  h1 { color:#6b2d5c; font-size:28px; margin:0; }
+  .card { background:#fff; padding:20px; border-radius:14px; box-shadow:0 6px 20px rgba(0,0,0,0.08); text-align:left; position:relative; }
+  .topbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap; }
+  .progresso { font-weight:bold; color:#6b2d5c; }
+  .pergunta { font-size:20px; margin:8px 0 16px 0; color:#6b2d5c; }
+  .opcao { display:block; background:#f7f2f9; border:1px solid #e3d7e6; border-radius:10px; padding:12px 14px; margin:8px 0; cursor:pointer; transition: transform 0.08s ease, background 0.3s; user-select:none; }
+  .opcao:hover { transform: translateY(-2px); background:#efe3f0; }
+  .opcao.correta { background:#d4edda; border-color:#28a745; }
+  .opcao.errada { background:#f8d7da; border-color:#dc3545; }
+  .mensagem { margin-top:14px; font-weight:600; }
+  .referencia { margin-top:8px; font-style:italic; color:#444; }
+  .historia { margin-top:10px; background:#fcf8ff; border:1px solid #f1e6f6; padding:12px; border-radius:8px; opacity:0; transition: opacity 0.6s ease; }
+  footer { margin-top:14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center; }
+  button { background:#6b2d5c; color:white; padding:10px 14px; border:none; border-radius:8px; cursor:pointer; font-size:14px; transition:opacity 0.4s; }
+  button.secondary { background:#eee; color:#333; border:1px solid #ddd; }
+  .final { text-align:center; padding:24px; }
+  #timer-circle { position:absolute; top:20px; right:20px; width:50px; height:50px; }
+  svg circle { transform: rotate(-90deg); transform-origin: center; }
+  @media(max-width:600px){ .pergunta{ font-size:18px;} h1{ font-size:20px; } }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>✨ Quiz: Mães da Bíblia (30) ✨</h1>
+    <p style="text-align:center; margin:6px 0 18px 0; color:#555">Responda corretamente para ver a história da mãe bíblica. Boa prova! 🙏</p>
+  </header>
+
+  <div class="card" id="card">
+    <div class="topbar">
+      <div class="progresso" id="progresso">Pergunta 1 de 30</div>
+      <div><button class="secondary" id="btn-reset">Reiniciar quiz</button></div>
+    </div>
+
+    <div id="conteudo"></div>
+
+    <div class="mensagem" id="mensagem"></div>
+
+    <footer>
+      <div id="tempo-info" style="color:#666; font-size:13px"></div>
+      <div><button id="btn-avancar" style="opacity:0; display:none">Avançar agora</button></div>
+    </footer>
+
+    <div id="timer-circle">
+      <svg width="50" height="50">
+        <circle cx="25" cy="25" r="22" stroke="#ddd" stroke-width="5" fill="none"></circle>
+        <circle cx="25" cy="25" r="22" stroke="#6b2d5c" stroke-width="5" fill="none" stroke-dasharray="138.23" stroke-dashoffset="0"></circle>
+      </svg>
+    </div>
+  </div>
+</div>
+
+<audio id="alerta-som" src="https://www.soundjay.com/buttons/sounds/beep-07.mp3" preload="auto"></audio>
+
+<script>
+const perguntas = [
+  {pergunta:"Quem orou pedindo um filho e depois o dedicou ao Senhor?",opcoes:["Ana","Sara","Rebeca","Maria"],resposta:"Ana",referencia:"1 Samuel 1:10-11",historia:"Ana era estéril e orou com lágrimas no templo, prometendo dedicar seu filho ao serviço do Senhor. Deus ouviu e ela deu à luz Samuel, que se tornou profeta em Israel."},
+  {pergunta:"Quem riu ao ouvir que teria um filho já idosa?",opcoes:["Raquel","Sara","Ana","Elisabete"],resposta:"Sara",referencia:"Gênesis 18:12-14",historia:"Sara, esposa de Abraão, riu quando ouviu que teria um filho em idade avançada. No entanto, Deus cumpriu Sua promessa e ela deu à luz Isaque, o filho da aliança."},
+  {pergunta:"Quem foi mãe de Esaú e Jacó?",opcoes:["Rebeca","Raquel","Lia","Sara"],resposta:"Rebeca",referencia:"Gênesis 25:21-26",historia:"Rebeca orou por filhos e recebeu gêmeos: Esaú e Jacó. Ela teve papel decisivo na história da aliança, especialmente na trajetória de Jacó."},
+  {pergunta:"Quem morreu ao dar à luz Benjamim?",opcoes:["Raquel","Rebeca","Sara","Ana"],resposta:"Raquel",referencia:"Gênesis 35:16-19",historia:"Raquel, esposa amada de Jacó, enfrentou dificuldades para engravidar. Gerou José e depois Benjamim; infelizmente faleceu durante o parto de Benjamim."},
+  {pergunta:"Quem foi mãe de Judá, ancestral da linhagem de Davi e de Jesus?",opcoes:["Lia","Raquel","Rebeca","Ana"],resposta:"Lia",referencia:"Gênesis 29:31-35",historia:"Lia, embora não fosse a esposa preferida de Jacó, foi abençoada com vários filhos, entre eles Judá, de cuja linhagem viria o Messias."},
+  {pergunta:"Quem colocou seu bebê em um cesto no rio Nilo para salvá-lo?",opcoes:["Miriã","Joquebede","Débora","Hulda"],resposta:"Joquebede",referencia:"Êxodo 2:1-3",historia:"Joquebede, mãe de Moisés, confiou no cuidado de Deus ao esconder o menino e colocá-lo em um cesto no Nilo. Moisés foi salvo e tornou-se libertador de Israel."},
+  {pergunta:"Quem foi mãe do rei Salomão?",opcoes:["Abigail","Bate-Seba","Rute","Ester"],resposta:"Bate-Seba",referencia:"2 Samuel 12:24",historia:"Bate-Seba passou por momentos difíceis na história com Davi, mas foi mãe de Salomão, que se tornou rei e construiu o templo em Jerusalém."},
+  {pergunta:"Quem foi mãe de Timóteo e o instruiu na fé?",opcoes:["Lídia","Priscila","Eunice","Débora"],resposta:"Eunice",referencia:"2 Timóteo 1:5",historia:"Eunice, junto com sua mãe Loide, ensinou Timóteo desde cedo nas Escrituras. Sua fé teve impacto direto na vida espiritual do filho."},
+  {pergunta:"Quem foi avó de Timóteo, lembrada por sua fé?",opcoes:["Marta","Loide","Isabel","Maria"],resposta:"Loide",referencia:"2 Timóteo 1:5",historia:"Loide é citada como exemplo de fé que se transmite entre gerações, influenciando Eunice e Timóteo."},
+  {pergunta:"Quem foi mãe de João Batista?",opcoes:["Maria","Elisabete","Ana","Marta"],resposta:"Elisabete",referencia:"Lucas 1:13",historia:"Elisabete, estéril e idosa, recebeu a promessa divina de ter um filho: João Batista, o profeta que preparou o caminho do Senhor."},
+  {pergunta:"Quem foi escolhida para ser mãe de Jesus?",opcoes:["Elisabete","Maria","Marta","Débora"],resposta:"Maria",referencia:"Lucas 1:30-31",historia:"Maria era uma jovem humilde de Nazaré que aceitou o plano de Deus com obediência, tornando-se a mãe do Salvador."},
+  {pergunta:"Quem hospedou o profeta Eliseu e depois recebeu um filho como promessa?",opcoes:["Sunamita","Rute","Ana","Débora"],resposta:"Sunamita",referencia:"2 Reis 4:16-17",historia:"A mulher sunamita foi generosa com Eliseu; o profeta orou e Deus lhe deu um filho, e depois Eliseu restituiu esse filho à vida quando morreu."},
+  {pergunta:"Quem foi mãe de Ismael?",opcoes:["Sara","Hagar","Raquel","Ana"],resposta:"Hagar",referencia:"Gênesis 16:15",historia:"Hagar, serva de Sara, foi mãe de Ismael. Apesar das dificuldades, Deus cuidou dela no deserto e prometeu multiplicar seus descendentes."},
+  {pergunta:"Quem recebeu do anjo a promessa de que teria um filho nazireu chamado Sansão?",opcoes:["Ana","Sara","Mãe de Sansão","Rebeca"],resposta:"Mãe de Sansão",referencia:"Juízes 13:3-5",historia:"A mãe de Sansão recebeu a visita de um anjo anunciando o nascimento do filho nazireu que libertaria Israel dos filisteus."},
+  {pergunta:"Quem foi mãe de Obede, avó de Jessé e bisavó de Davi?",opcoes:["Rute","Noemi","Bate-Seba","Raquel"],resposta:"Rute",referencia:"Rute 4:13-17",historia:"Rute, moabita fiel, escolheu servir ao Deus de Israel. Casou-se com Boaz, teve Obede e entrou para a genealogia do rei Davi."},
+  {pergunta:"Quem foi sogra de Rute e exemplo de fé em meio à dor?",opcoes:["Ana","Noemi","Sara","Raquel"],resposta:"Noemi",referencia:"Rute 1:16-17",historia:"Noemi sofreu perdas, mas sua nora Rute permaneceu fiel. Noemi viu sua esperança restaurada com o nascimento de Obede."},
+  {pergunta:"Quem se tornou esposa de Davi e mãe de Quileabe?",opcoes:["Abigail","Ester","Rute","Bate-Seba"],resposta:"Abigail",referencia:"2 Samuel 3:3",historia:"Abigail foi reconhecida por sua sabedoria e prudência; após evitar um conflito, tornou-se esposa de Davi e teve filhos."},
+  {pergunta:"Quem, mesmo na pobreza, alimentou o profeta Elias e viu seu filho sustentado por milagre?",opcoes:["Ana","Sara","Viúva de Sarepta","Débora"],resposta:"Viúva de Sarepta",referencia:"1 Reis 17:12-16",historia:"A viúva de Sarepta compartilhou seu pouco com Elias; Deus multiplicou a farinha e o azeite, sustentando-a durante a fome."},
+  {pergunta:"Quem foi juíza e chamada 'mãe em Israel'?",opcoes:["Débora","Hulda","Abigail","Sara"],resposta:"Débora",referencia:"Juízes 5:7",historia:"Débora foi profetisa e líder de Israel, conduzindo o povo com sabedoria. Era vista como uma mãe espiritual para a nação."},
+  {pergunta:"Quem foi a profetisa consultada no reinado de Josias?",opcoes:["Hulda","Débora","Ana","Marta"],resposta:"Hulda",referencia:"2 Reis 22:14-20",historia:"Hulda confirmou a palavra encontrada no templo e transmitiu a mensagem de Deus ao rei Josias, atuando com autoridade profética."},
+  {pergunta:"Quem exclamou cheia do Espírito ao encontrar Maria, mãe de Jesus?",opcoes:["Ana","Marta","Elisabete","Lia"],resposta:"Elisabete",referencia:"Lucas 1:41-42",historia:"Ao ouvir a saudação de Maria, Elisabete foi cheia do Espírito e reconheceu a bênção de Deus, louvando a presença do Senhor."},
+  {pergunta:"Quem, com compaixão, adotou e criou Moisés no palácio do Egito?",opcoes:["Miriã","Filha de Faraó","Joquebede","Raquel"],resposta:"Filha de Faraó",referencia:"Êxodo 2:5-10",historia:"A filha de Faraó encontrou o bebê no cesto e decidiu criá-lo como seu, dando a Moisés educação no palácio e preservando sua vida."},
+  {pergunta:"Quem pediu que seus filhos Tiago e João tivessem lugares de honra junto a Jesus?",opcoes:["Maria Madalena","Marta","Salomé (mãe de Zebedeu)","Ana"],resposta:"Salomé (mãe de Zebedeu)",referencia:"Mateus 20:20-21",historia:"A mãe de Tiago e João, preocupada com o futuro dos filhos, pediu a Jesus honra para eles no reino, demonstrando zelo materno."},
+  {pergunta:"Quem suplicou a Jesus pela cura de sua filha, demonstrando grande fé?",opcoes:["Cananeia","Maria","Marta","Elisabete"],resposta:"Cananeia",referencia:"Mateus 15:22-28",historia:"A mulher cananeia, estrangeira, persistiu em pedir a Jesus pela cura da filha. Sua fé foi reconhecida e sua filha foi curada."},
+  {pergunta:"Quem recebeu de volta o único filho quando Jesus o ressuscitou na cidade de Naim?",opcoes:["Viúva de Sarepta","Viúva de Naim","Marta","Maria"],resposta:"Viúva de Naim",referencia:"Lucas 7:12-15",historia:"A viúva de Naim chorava a morte do filho único; Jesus, movido de compaixão, o trouxe de volta à vida, consolando a mãe."},
+  {pergunta:"Quem correu até Eliseu quando seu filho morreu, crendo na restauração?",opcoes:["Sunamita","Noemi","Rute","Sara"],resposta:"Sunamita",referencia:"2 Reis 4:27-37",historia:"A mulher sunamita, que mostrou hospitalidade a Eliseu, sofreu a perda do filho; mas perseverou e buscou o profeta, que o restituiria à vida."},
+  {pergunta:"Quem servia a Jesus e recebeu a promessa da ressurreição sobre Lázaro?",opcoes:["Marta","Maria","Elisabete","Débora"],resposta:"Marta",referencia:"João 11:23-25",historia:"Marta demonstrou fé prática. Diante da morte de Lázaro, declarou sua fé em Jesus como o Messias e recebeu a promessa da ressurreição."},
+  {pergunta:"Quem foi a primeira pessoa a ver Jesus ressuscitado?",opcoes:["Maria (mãe de Jesus)","Marta","Maria Madalena","Salomé"],resposta:"Maria Madalena",referencia:"João 20:16-18",historia:"Maria Madalena, antes conhecida por ter sido libertada de demônios, foi testemunha fiel da ressurreição e anunciou a novidade aos discípulos."},
+  {pergunta:"Em cuja casa os discípulos costumavam orar, cujo nome aparece em Atos 12?",opcoes:["Priscila","Marta","Maria (mãe de João Marcos)","Lídia"],resposta:"Maria (mãe de João Marcos)",referencia:"Atos 12:12",historia:"Maria, mãe de João Marcos, abriu sua casa para que a comunidade se reunisse em oração — um exemplo de hospitalidade e serviço."},
+  {pergunta:"Quem é descrita em Provérbios 31 como exemplo de mãe e esposa virtuosa?",opcoes:["Mulher virtuosa","Débora","Ester","Rebeca"],resposta:"Mulher virtuosa",referencia:"Provérbios 31:25-28",historia:"A 'mulher virtuosa' em Provérbios 31 é apresentada como forte, trabalhadora, sábia e temerosa de Deus — modelo de mãe e esposa abençoada."}
+];
+
+let index = 0, pontuacao = 0, tempo = 10, startTime, timerAnimation;
+const conteudo=document.getElementById('conteudo'), mensagem=document.getElementById('mensagem'), btnAvancar=document.getElementById('btn-avancar'), tempoInfo=document.getElementById('tempo-info'), progresso=document.getElementById('progresso'), alertaSom=document.getElementById('alerta-som'), btnReset=document.getElementById('btn-reset');
+const circle=document.querySelector('#timer-circle circle:nth-child(2)'), circleLength=2*Math.PI*22;
+
+function iniciarQuiz(){ index=0; pontuacao=0; mostrarPergunta(); }
+
+function mostrarPergunta(){
+  if(index>=perguntas.length){ mostrarResultado(); return; }
+  const q=perguntas[index];
+  conteudo.innerHTML=`<div class="pergunta">${q.pergunta}</div>`+
+    q.opcoes.map(op=>`<div class="opcao">${op}</div>`).join('');
+  progresso.textContent=`Pergunta ${index+1} de ${perguntas.length}`;
+  mensagem.textContent=''; btnAvancar.style.display='none'; btnAvancar.style.opacity=0;
+  tempo=10; startTime=performance.now(); circle.style.strokeDashoffset=0;
+  cancelAnimationFrame(timerAnimation); timerAnimation=requestAnimationFrame(animateTimer);
+  document.querySelectorAll('.opcao').forEach(el=>{ el.onclick=()=>selecionar(el,q.resposta); });
+}
+
+function animateTimer(now){
+  let elapsed=(now-startTime)/1000;
+  let progress=elapsed/tempo; if(progress>1) progress=1;
+  circle.style.strokeDashoffset=progress*circleLength;
+  if(progress>=1){ alertaSom.play(); mostrarRespostaCorreta(); return; }
+  tempoInfo.textContent=`Tempo: ${Math.ceil(tempo-elapsed)}s`;
+  timerAnimation=requestAnimationFrame(animateTimer);
+}
+
+function selecionar(el,resposta){
+  cancelAnimationFrame(timerAnimation);
+  if(el.textContent===resposta){ el.classList.add('correta'); pontuacao++; mensagem.textContent='✅ Correto!'; }
+  else{ el.classList.add('errada'); mensagem.textContent='❌ Errado!'; mostrarRespostaCorreta(); }
+  btnAvancar.style.display='inline-block'; setTimeout(()=>{ btnAvancar.style.opacity=1; },50);
+}
+
+function mostrarRespostaCorreta(){
+  document.querySelectorAll('.opcao').forEach(el=>{ if(el.textContent===perguntas[index].resposta) el.classList.add('correta'); });
+  const hist=document.createElement('div'); hist.className='historia';
+  hist.innerHTML=perguntas[index].historia+`<div class="referencia">Referência: ${perguntas[index].referencia}</div>`;
+  conteudo.appendChild(hist); setTimeout(()=>{ hist.style.opacity=1; },50);
+  btnAvancar.style.display='inline-block'; setTimeout(()=>{ btnAvancar.style.opacity=1; },50);
+}
+
+btnAvancar.onclick=()=>{ index++; mostrarPergunta(); }
+btnReset.onclick=()=>{ iniciarQuiz(); }
+
+function mostrarResultado(){
+  conteudo.innerHTML=`<div class="final"><h2>🎉 Quiz Concluído! 🎉</h2><p>Sua pontuação: ${pontuacao} / ${perguntas.length}</p><button onclick="iniciarQuiz()">Refazer Quiz</button></div>`;
+  tempoInfo.textContent=''; mensagem.textContent=''; btnAvancar.style.display='none';
+}
+
+iniciarQuiz();
+</script>
+</body>
+</html>
